@@ -88,14 +88,6 @@ class Movie {
     if (!d || d === "") {
       return new MandatoryValueConstraintViolation("A release date must be provided!");
     }
-    if (typeof (d) === "string") {
-      d = new Date(d);
-    }
-    const format = /^\d{4}-\d{2}-\d{2}$/;
-    const formatError = "Release date must be formatted as YYYY-MM-DD";
-    if (d.toISOString().split("T")[0].match(format) === null) {
-      return new PatternConstraintViolation(formatError);
-    }
     return new NoConstraintViolation();
   }
   set releaseDate(d) {
