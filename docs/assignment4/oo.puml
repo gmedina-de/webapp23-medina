@@ -13,5 +13,4 @@ object Person {
   name[1] : NonEmptyString
 }
 
-
 @enduml

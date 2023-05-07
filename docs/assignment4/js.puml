@@ -12,9 +12,9 @@ object Movie {
   {static} checkTitle(in title : string) : ConstraintViolation
   {static} checkReleaseDate(in date : Date) : ConstraintViolation
   {static} checkDirector(in d : Director) : ConstraintViolation
-  {static} checkAuthor(in a : Author) : ConstraintViolation
-  addAuthor(in a : Author)
-  removeAuthor(in a : Author)
+  {static} checkActor(in a : Actor) : ConstraintViolation
+  addActor(in a : Actor)
+  removeActor(in a : Actor)
 }
 
 object Person {
@@ -26,6 +26,5 @@ object Person {
   {static} checkPersonIdAsIdRef(in p : number(int)) : ConstraintViolation
   {static} checkName(in n : string) : ConstraintViolation
 }
-
 
 @enduml
