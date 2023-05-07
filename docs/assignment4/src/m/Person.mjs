@@ -158,7 +158,7 @@ class Person {
     // delete all dependent movie records
     for (const movieId of Object.keys(Movie.instances)) {
       const movie = Movie.instances[movieId];
-      if (personId in movie.people) delete movie.people[personId];
+      if (personId in movie.actors) delete movie.actors[personId];
     }
     // delete the person object
     delete Person.instances[personId];
@@ -197,7 +197,7 @@ class Person {
     } catch (e) {
       alert("Error when writing to Local Storage\n" + e);
     }
-  };
+  }
 }
 
 export default Person;

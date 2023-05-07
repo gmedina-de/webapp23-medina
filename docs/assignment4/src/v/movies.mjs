@@ -6,9 +6,8 @@
  Import classes, datatypes and utility procedures
  ***************************************************************/
 import Person from "../m/Person.mjs";
-import Publisher from "../m/Publisher.mjs";
 import Movie from "../m/Movie.mjs";
-import { fillSelectWithOptions, createListFromMap, createMultiSelectionWidget }
+import { fillSelectWithOptions, createIsoDateString, createListFromMap, createMultiSelectionWidget }
   from "../../lib/util.mjs";
 
 /***************************************************************
@@ -46,15 +45,13 @@ document.getElementById("RetrieveAndListAll")
     for (const key of Object.keys(Movie.instances)) {
       const movie = Movie.instances[key];
       // create list of people for this movie
-      const authListEl = createListFromMap(movie.people, "name");
+      const actorListEl = createListFromMap(movie.actors, "name");
       const row = tableBodyEl.insertRow();
-      row.insertCell().textContent = movie.isbn;
+      row.insertCell().textContent = movie.movieId;
       row.insertCell().textContent = movie.title;
-      row.insertCell().textContent = movie.year;
-      row.insertCell().appendChild(authListEl);
-      // if the movie has a publisher, show its name
-      row.insertCell().textContent =
-        movie.publisher ? movie.publisher.name : "";
+      row.insertCell().textContent = createIsoDateString(movie.releaseDate);
+      row.insertCell().textContent = movie.director.name;
+      row.insertCell().appendChild(actorListEl);
     }
   });
 
@@ -62,50 +59,60 @@ document.getElementById("RetrieveAndListAll")
   Use case Create Movie
  **********************************************/
 const createFormEl = document.querySelector("section#Movie-C > form"),
-  selectPeopleEl = createFormEl["selectPeople"],
-  selectPublisherEl = createFormEl["selectPublisher"];
+  selectActorsEl = createFormEl["selectActors"],
+  selectDirectorEl = createFormEl["selectDirector"];
 document.getElementById("Create").addEventListener("click", function () {
-  // set up a single selection list for selecting a publisher
-  fillSelectWithOptions(selectPublisherEl, Publisher.instances, "name");
+  // set up a single selection list for selecting a director
+  fillSelectWithOptions(selectDirectorEl, Person.instances, "personId", { displayProp: "name" });
   // set up a multiple selection list for selecting people
-  fillSelectWithOptions(selectPeopleEl, Person.instances,
-    "personId", { displayProp: "name" });
+  fillSelectWithOptions(selectActorsEl, Person.instances, "personId", { displayProp: "name" });
   document.getElementById("Movie-M").style.display = "none";
   document.getElementById("Movie-C").style.display = "block";
   createFormEl.reset();
 });
 // set up event handlers for responsive constraint validation
-createFormEl.isbn.addEventListener("input", function () {
-  createFormEl.isbn.setCustomValidity(
-    Movie.checkIsbnAsId(createFormEl["isbn"].value).message);
+createFormEl.movieId.addEventListener("input", function () {
+  createFormEl.movieId.setCustomValidity(
+    Movie.checkMovieIdAsId(createFormEl["movieId"].value).message);
 });
-/* SIMPLIFIED/MISSING CODE: add event listeners for responsive
-   validation on user input with Movie.checkTitle and checkYear */
+createFormEl.title.addEventListener("input", function () {
+  createFormEl.title.setCustomValidity(
+    Movie.checkTitle(createFormEl["title"].value).message);
+});
+createFormEl.releaseDate.addEventListener("input", function () {
+  createFormEl.releaseDate.setCustomValidity(
+    Movie.checkReleaseDate(createFormEl["releaseDate"].value).message);
+});
+createFormEl.selectDirector.addEventListener("input", function () {
+  createFormEl.selectDirector.setCustomValidity(
+    Movie.checkDirector(createFormEl["selectDirector"].value).message);
+});
 
 // handle Save button click events
 createFormEl["commit"].addEventListener("click", function () {
   const slots = {
-    isbn: createFormEl["isbn"].value,
+    movieId: createFormEl["movieId"].value,
     title: createFormEl["title"].value,
-    year: createFormEl["year"].value,
-    personIdRefs: [],
-    publisher_id: createFormEl["selectPublisher"].value
+    releaseDate: createFormEl["releaseDate"].value,
+    actorIdRefs: [],
+    directorId: createFormEl["selectDirector"].value
   };
   // check all input fields and show error messages
-  createFormEl.isbn.setCustomValidity(
-    Movie.checkIsbnAsId(slots.isbn).message);
-  /* SIMPLIFIED CODE: no before-submit validation of name */
+  createFormEl.movieId.setCustomValidity(
+    Movie.checkMovieIdAsId(slots.movieId).message);
+  createFormEl.title.setCustomValidity(
+    Movie.checkTitle(slots.title).message);
+  createFormEl.releaseDate.setCustomValidity(
+    Movie.checkReleaseDate(slots.releaseDate).message);
+  createFormEl.selectDirector.setCustomValidity(
+    Movie.checkDirector(slots.directorId).message);
   // get the list of selected people
-  const selAuthOptions = createFormEl.selectPeople.selectedOptions;
-  // check the mandatory value constraint for people
-  createFormEl.selectPeople.setCustomValidity(
-    selAuthOptions.length > 0 ? "" : "No person selected!"
-  );
+  const selActorOptions = createFormEl.selectActors.selectedOptions;
   // save the input data only if all form fields are valid
   if (createFormEl.checkValidity()) {
     // construct a list of person ID references
-    for (const opt of selAuthOptions) {
-      slots.personIdRefs.push(opt.value);
+    for (const opt of selActorOptions) {
+      slots.actorIdRefs.push(opt.value);
     }
     Movie.add(slots);
   }
@@ -120,8 +127,9 @@ document.getElementById("Update").addEventListener("click", function () {
   // reset selection list (drop its previous contents)
   updSelMovieEl.innerHTML = "";
   // populate the selection list
-  fillSelectWithOptions(updSelMovieEl, Movie.instances,
-    "isbn", { displayProp: "title" });
+  fillSelectWithOptions(updSelMovieEl, Movie.instances, "movieId", { displayProp: "title" });
+  const selectDirectorEl = updateFormEl["selectDirector"];
+  fillSelectWithOptions(selectDirectorEl, Person.instances, "personId", { displayProp: "name" });
   document.getElementById("Movie-M").style.display = "none";
   document.getElementById("Movie-U").style.display = "block";
   updateFormEl.reset();
@@ -132,67 +140,68 @@ document.getElementById("Update").addEventListener("click", function () {
  */
 updSelMovieEl.addEventListener("change", function () {
   const saveButton = updateFormEl["commit"],
-    selectPeopleWidget = updateFormEl.querySelector(".MultiSelectionWidget"),
-    selectPublisherEl = updateFormEl["selectPublisher"],
-    isbn = updateFormEl["selectMovie"].value;
-  if (isbn) {
-    const movie = Movie.instances[isbn];
-    updateFormEl["isbn"].value = movie.isbn;
+    selectActorsWidget = updateFormEl.querySelector(".MultiSelectionWidget"),
+    movieId = updateFormEl["selectMovie"].value;
+  if (movieId) {
+    const movie = Movie.instances[movieId];
+    updateFormEl["movieId"].value = movie.movieId;
     updateFormEl["title"].value = movie.title;
-    updateFormEl["year"].value = movie.year;
-    // set up the associated publisher selection list
-    fillSelectWithOptions(selectPublisherEl, Publisher.instances, "name");
+    updateFormEl["releaseDate"].value = createIsoDateString(movie.releaseDate);
+    updateFormEl["selectDirector"].value = movie.director.personId;
     // set up the associated people selection widget
-    createMultiSelectionWidget(selectPeopleWidget, movie.people,
-      Person.instances, "personId", "name", 1);  // minCard=1
-    // assign associated publisher as the selected option to select element
-    if (movie.publisher) updateFormEl["selectPublisher"].value = movie.publisher.name;
+    createMultiSelectionWidget(selectActorsWidget, movie.actors,
+      Person.instances, "personId", "name", 0);
     saveButton.disabled = false;
   } else {
     updateFormEl.reset();
-    updateFormEl["selectPublisher"].selectedIndex = 0;
-    selectPeopleWidget.innerHTML = "";
+    updateFormEl["selectDirector"].selectedIndex = 0;
+    selectActorsWidget.innerHTML = "";
     saveButton.disabled = true;
   }
 });
 // handle Save button click events
 updateFormEl["commit"].addEventListener("click", function () {
   const movieIdRef = updSelMovieEl.value,
-    selectPeopleWidget = updateFormEl.querySelector(".MultiSelectionWidget"),
-    selectedPeopleListEl = selectPeopleWidget.firstElementChild;
+    selectActorsWidget = updateFormEl.querySelector(".MultiSelectionWidget"),
+    selectedActorsListEl = selectActorsWidget.firstElementChild;
   if (!movieIdRef) return;
   const slots = {
-    isbn: updateFormEl["isbn"].value,
+    movieId: updateFormEl["movieId"].value,
     title: updateFormEl["title"].value,
-    year: updateFormEl["year"].value,
-    publisher_id: updateFormEl["selectPublisher"].value
+    releaseDate: updateFormEl["releaseDate"].value,
+    directorId: updateFormEl["selectDirector"].value,
   };
   // add event listeners for responsive validation
-  /* MISSING CODE */
+  updateFormEl.title.setCustomValidity(
+    Movie.checkTitle(slots.title).message);
+  updateFormEl.releaseDate.setCustomValidity(
+    Movie.checkReleaseDate(slots.releaseDate).message);
+  updateFormEl.selectDirector.setCustomValidity(
+    Movie.checkDirector(slots.directorId).message);
   // commit the update only if all form field values are valid
   if (updateFormEl.checkValidity()) {
-    // construct personIdRefs-ToAdd/ToRemove lists
-    const personIdRefsToAdd = [], personIdRefsToRemove = [];
-    for (const personItemEl of selectedPeopleListEl.children) {
-      if (personItemEl.classList.contains("removed")) {
-        personIdRefsToRemove.push(personItemEl.getAttribute("data-value"));
+    // construct ToAdd/ToRemove lists
+    const actorIdRefsToAdd = [], actorIdRefsToRemove = [];
+    for (const actorItemEl of selectedActorsListEl.children) {
+      if (actorItemEl.classList.contains("removed")) {
+        actorIdRefsToRemove.push(actorItemEl.getAttribute("data-value"));
       }
-      if (personItemEl.classList.contains("added")) {
-        personIdRefsToAdd.push(personItemEl.getAttribute("data-value"));
+      if (actorItemEl.classList.contains("added")) {
+        actorIdRefsToAdd.push(actorItemEl.getAttribute("data-value"));
       }
     }
     // if the add/remove list is non-empty, create a corresponding slot
-    if (personIdRefsToRemove.length > 0) {
-      slots.personIdRefsToRemove = personIdRefsToRemove;
+    if (actorIdRefsToRemove.length > 0) {
+      slots.actorIdRefsToRemove = actorIdRefsToRemove;
     }
-    if (personIdRefsToAdd.length > 0) {
-      slots.personIdRefsToAdd = personIdRefsToAdd;
+    if (actorIdRefsToAdd.length > 0) {
+      slots.actorIdRefsToAdd = actorIdRefsToAdd;
     }
     Movie.update(slots);
     // update the movie selection list's option element
     updSelMovieEl.options[updSelMovieEl.selectedIndex].text = slots.title;
     // drop widget content
-    selectPeopleWidget.innerHTML = "";
+    selectActorsWidget.innerHTML = "";
   }
 });
 
@@ -205,8 +214,7 @@ document.getElementById("Delete").addEventListener("click", function () {
   // reset selection list (drop its previous contents)
   delSelMovieEl.innerHTML = "";
   // populate the selection list
-  fillSelectWithOptions(delSelMovieEl, Movie.instances,
-    "isbn", { displayProp: "title" });
+  fillSelectWithOptions(delSelMovieEl, Movie.instances, "movieId", { displayProp: "title" });
   document.getElementById("Movie-M").style.display = "none";
   document.getElementById("Movie-D").style.display = "block";
   deleteFormEl.reset();

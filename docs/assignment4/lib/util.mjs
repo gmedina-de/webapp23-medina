@@ -48,18 +48,6 @@ function createOption(val, txt, classValues) {
   return el;
 }
 /**
- * Create a time element from a Date object
- *
- * @param {object} d
- * @return {object}
- */
-function createTimeElem(d) {
-  var tEl = document.createElement("time");
-  tEl.textContent = d.toLocaleDateString();
-  tEl.datetime = d.toISOString();
-  return tEl;
-}
-/**
  * Create a list element from an map of objects
  *
  * @param {object} entityTbl  An entity table
@@ -136,7 +124,7 @@ function createMultiSelectionWidget(widgetContainerEl, selection, selectionRange
   if (!displayProp) displayProp = keyProp;
   fillSelectedItemsList(selectedItemsListEl, selection, keyProp, displayProp);
   // event handler for removing an item from the selection
-  selectedItemsListEl.addEventListener('click', function (e) {
+  selectedItemsListEl.addEventListener("click", function (e) {
     if (e.target.tagName === "BUTTON") {  // delete/undo button
       const btnEl = e.target,
         listItemEl = btnEl.parentNode,
@@ -169,7 +157,7 @@ function createMultiSelectionWidget(widgetContainerEl, selection, selectionRange
   el.appendChild(selectEl);
   el.appendChild(createPushButton("add"));
   // event handler for moving an item from the selection range list to the selected items list
-  selectEl.parentNode.addEventListener('click', function (e) {
+  selectEl.parentNode.addEventListener("click", function (e) {
     if (e.target.tagName === "BUTTON") {  // the add button was clicked
       if (selectEl.value) {
         addItemToListOfSelectedItems(selectedItemsListEl, selectEl.value,
@@ -281,4 +269,4 @@ function cloneObject(obj) {
   return clone;
 }
 
-export { isNonEmptyString, fillSelectWithOptions, createListFromMap, createMultiSelectionWidget, cloneObject };
+export { isNonEmptyString, fillSelectWithOptions, createListFromMap, createIsoDateString, createMultiSelectionWidget, cloneObject };

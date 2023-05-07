@@ -18,25 +18,25 @@ function generateTestData() {
     Person.instances[8] = new Person({ personId: 8, name: "Natalie Portman" });
     Person.instances[9] = new Person({ personId: 9, name: "Keanu Reeves" });
     Person.saveAll();
-    Movie.instances["0553345842"] = new Movie({
+    Movie.instances[1] = new Movie({
       movieId: 1,
       title: "Pulp Fiction",
       releaseDate: new Date("1994-05-12"),
-      director_id: 3,
+      directorId: 3,
       actorIdRefs: [3, 5, 6],
     });
-    Movie.instances["1463794762"] = new Movie({
+    Movie.instances[2] = new Movie({
       movieId: 2,
       title: "Star Wars",
       releaseDate: new Date("1977-05-25"),
-      director_id: 2,
+      directorId: 2,
       actorIdRefs: [7, 8],
     });
-    Movie.instances["1928565379"] = new Movie({
+    Movie.instances[3] = new Movie({
       movieId: 3,
       title: "Dangerous Liaisons",
       releaseDate: new Date("1988-12-16"),
-      director_id: 1,
+      directorId: 1,
       actorIdRefs: [9, 5],
     });
     Movie.saveAll();

@@ -70,11 +70,11 @@
         <table>
           <thead>
             <tr>
-              <th>ISBN</th>
+              <th>ID</th>
               <th>Title</th>
-              <th>Year</th>
-              <th>People</th>
-              <th>Publisher</th>
+              <th>Release date</th>
+              <th>Director</th>
+              <th>Actors</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -89,21 +89,21 @@
         <h1>Create a new movie record</h1>
         <form>
           <div class="field">
-            <label>ISBN: <input type="text" name="isbn" /></label>
+            <label>ID: <input type="text" name="movieId" /></label>
           </div>
           <div class="field">
             <label>Title: <input type="text" name="title" /></label>
           </div>
           <div class="field">
-            <label>Year: <input type="text" name="year" /></label>
-          </div>
-          <div class="select-one">
-            <label>Publisher: <select name="selectPublisher"></select></label>
+            <label>Release date: <input type="text" name="releaseDate" /></label>
           </div>
           <div class="select-many">
-            <label>People:
-              <select name="selectPeople" multiple="multiple"></select>
+            <label>Actors:
+              <select name="selectActors" multiple="multiple"></select>
             </label>
+          </div>
+          <div class="select-one">
+            <label>Director: <select name="selectDirector"></select></label>
           </div>
           <div class="button-group">
             <button type="submit" name="commit">Save</button>
@@ -120,22 +120,22 @@
             <label>Select movie: <select name="selectMovie"></select></label>
           </div>
           <div class="field">
-            <label>ISBN:
-              <output name="isbn"></output>
+            <label>ID:
+              <output name="movieId"></output>
             </label>
           </div>
           <div class="field">
             <label>Title: <input type="text" name="title" /></label>
           </div>
           <div class="field">
-            <label>Year: <input type="text" name="year" /></label>
-          </div>
-          <div class="select-one">
-            <label>Publisher: <select name="selectPublisher"></select></label>
+            <label>Release date: <input type="text" name="releaseDate" /></label>
           </div>
           <div class="widget">
-            <label for="updMovieSelectPeople">People:</label>
-            <div id="updMovieSelectPeople" class="MultiSelectionWidget"></div>
+            <label>Actors:</label>
+            <div id="updMovieSelectActors" class="MultiSelectionWidget"></div>
+          </div>
+          <div class="select-one">
+            <label>Director: <select name="selectDirector"></select></label>
           </div>
           <div class="button-group">
             <button type="submit" name="commit" disabled="disabled">Save</button>
@@ -161,8 +161,9 @@
   </main>
   <footer>
     <div class="foot-content wrapper">
-      Copyright © 2015-2021 Gerd Wagner,
-      <a rel="license" href="https://www.codeproject.com/info/cpol10.aspx">The Code Project Open License (CPOL)</a>.
+      This site is product of @medinger's work during summer semester 2023
+      as part of the module "Designing and Implementing Web Applications"
+      from the Chair of Internet Technology, Brandenburg University of Technology, Germany.
     </div>
   </footer>
 </body>

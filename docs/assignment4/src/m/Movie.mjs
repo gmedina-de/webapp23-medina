@@ -16,12 +16,12 @@ import {
  */
 class Movie {
   // using a record parameter with ES6 function parameter destructuring
-  constructor({ movieId, title, releaseDate, actors, actorIdRefs, director, director_id }) {
+  constructor({ movieId, title, releaseDate, director, directorId, actors, actorIdRefs }) {
     this.movieId = movieId;
     this.title = title;
     this.releaseDate = releaseDate;
     // assign object references or ID references (to be converted in setter)
-    this.director = director || director_id;
+    this.director = director || directorId;
     this.actors = actors || actorIdRefs;
   }
 
@@ -88,11 +88,22 @@ class Movie {
     if (!d || d === "") {
       return new MandatoryValueConstraintViolation("A release date must be provided!");
     }
+    if (typeof (d) === "string") {
+      d = new Date(d);
+    }
+    const format = /^\d{4}-\d{2}-\d{2}$/;
+    const formatError = "Release date must be formatted as YYYY-MM-DD";
+    if (d.toISOString().split("T")[0].match(format) === null) {
+      return new PatternConstraintViolation(formatError);
+    }
     return new NoConstraintViolation();
   }
   set releaseDate(d) {
     var validationResult = Movie.checkReleaseDate(d);
     if (validationResult instanceof NoConstraintViolation) {
+      if (typeof (d) === "string") {
+        d = new Date(d);
+      }
       this._releaseDate = d;
     } else {
       throw validationResult;
@@ -102,23 +113,19 @@ class Movie {
   get director() {
     return this._director;
   }
-  static checkDirector(director_id) {
-    var validationResult = null;
-    if (!director_id) {
-      validationResult = new NoConstraintViolation();  // optional
-    } else {
-      // invoke foreign key constraint check
-      validationResult = Director.checkNameAsIdRef(director_id);
+  static checkDirector(d) {
+    if (!d) {
+      return new MandatoryValueConstraintViolation("A director must be provided!");
     }
-    return validationResult;
+    return Person.checkPersonIdAsIdRef(d);
   }
   set director(d) {
-    // p can be an ID reference or an object reference
-    const director_id = (typeof d !== "object") ? d : d.name;
-    const validationResult = Movie.checkDirector(director_id);
+    // d can be an ID reference or an object reference
+    const id = (typeof d !== "object") ? parseInt(d) : d.personId;
+    const validationResult = Movie.checkDirector(id);
     if (validationResult instanceof NoConstraintViolation) {
       // create the new director reference
-      this._director = Director.instances[director_id];
+      this._director = Person.instances[id];
     } else {
       throw validationResult;
     }
@@ -127,26 +134,26 @@ class Movie {
   get actors() {
     return this._actors;
   }
-  static checkActor(actor_id) {
+  static checkActor(a) {
     var validationResult = null;
-    if (!actor_id) {
+    if (!a) {
       // actor(s) are optional
       validationResult = new NoConstraintViolation();
     } else {
       // invoke foreign key constraint check
-      validationResult = Person.checkPersonIdAsIdRef(actor_id);
+      validationResult = Person.checkPersonIdAsIdRef(a);
     }
     return validationResult;
   }
   addActor(a) {
     // a can be an ID reference or an object reference
-    const actor_id = (typeof a !== "object") ? parseInt(a) : a.actorId;
-    if (actor_id) {
-      const validationResult = Movie.checkActor(actor_id);
-      if (actor_id && validationResult instanceof NoConstraintViolation) {
+    const id = (typeof a !== "object") ? parseInt(a) : a.actorId;
+    if (id) {
+      const validationResult = Movie.checkActor(id);
+      if (id && validationResult instanceof NoConstraintViolation) {
         // add the new actor reference
-        const key = String(actor_id);
-        this._actors[key] = Actor.instances[key];
+        const key = String(id);
+        this._actors[key] = Person.instances[key];
       } else {
         throw validationResult;
       }
@@ -191,20 +198,20 @@ class Movie {
       // copy only property slots with underscore prefix
       if (p.charAt(0) !== "_") continue;
       switch (p) {
-        case "_director":
-          // convert object reference to ID reference
-          if (this._director) rec.director_id = this._director.name;
-          break;
-        case "_actors":
-          // convert the map of object references to a list of ID references
-          rec.actorIdRefs = [];
-          for (const actorIdStr of Object.keys(this.actors)) {
-            rec.actorIdRefs.push(parseInt(actorIdStr));
-          }
-          break;
-        default:
-          // remove underscore prefix
-          rec[p.substr(1)] = this[p];
+      case "_director":
+        // convert object reference to ID reference
+        if (this._director) rec.directorId = this._director.personId;
+        break;
+      case "_actors":
+        // convert the map of object references to a list of ID references
+        rec.actorIdRefs = [];
+        for (const actorIdStr of Object.keys(this.actors)) {
+          rec.actorIdRefs.push(parseInt(actorIdStr));
+        }
+        break;
+      default:
+        // remove underscore prefix
+        rec[p.substr(1)] = this[p];
       }
     }
     return rec;
@@ -227,7 +234,7 @@ class Movie {
   /**
    *  Update an existing Movie record/object
    */
-  static update({ movieId, title, releaseDate, actorIdRefsToAdd, actorIdRefsToRemove, director_id }) {
+  static update({ movieId, title, releaseDate, actorIdRefsToAdd, actorIdRefsToRemove, directorId }) {
     const movie = Movie.instances[movieId], objectBeforeUpdate = cloneObject(movie);
     var noConstraintViolated = true, updatedProperties = [];
     try {
@@ -235,12 +242,12 @@ class Movie {
         movie.title = title;
         updatedProperties.push("title");
       }
-      if (releaseDate && movie.releaseDate !== releaseDate) {
+      if (releaseDate && movie.releaseDate.getTime() !== new Date(releaseDate).getTime()) {
         movie.releaseDate = releaseDate;
         updatedProperties.push("releaseDate");
       }
-      if (director_id && movie.director !== director_id) {
-        movie.director = director_id;
+      if (directorId && movie.director.personId !== parseInt(directorId)) {
+        movie.director = directorId;
         updatedProperties.push("director");
       }
       if (actorIdRefsToAdd) {

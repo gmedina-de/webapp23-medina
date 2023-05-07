@@ -20,7 +20,7 @@ Movie.retrieveAll();
  ***************************************************************/
 // set up back-to-menu buttons for all use cases
 for (const btn of document.querySelectorAll("button.back-to-menu")) {
-  btn.addEventListener('click', function () { refreshManageDataUI(); });
+  btn.addEventListener("click", function () { refreshManageDataUI(); });
 }
 // neutralize the submit event for all use cases
 for (const frm of document.querySelectorAll("section > form")) {
@@ -111,7 +111,7 @@ updateFormEl["commit"].addEventListener("click", function () {
   const slots = {
     personId: updateFormEl.personId.value,
     name: updateFormEl.name.value
-  }
+  };
   // check all property constraints
   updateFormEl.name.setCustomValidity(
     Person.checkName(updateFormEl.name.value).message);
