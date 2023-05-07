@@ -2,20 +2,30 @@
  * @fileOverview  Defines utility procedures/functions   
  * @person Gerd Wagner
  */
+
+/**
+* Verifies if a value represents an integer
+* @param {string} x
+* @return {boolean}
+*/
+function isNonEmptyString(x) {
+  return typeof (x) === "string" && x.trim() !== "";
+}
 /**
  * Serialize a Date object as an ISO date string
  * @return  YYYY-MM-DD
  */
 function createIsoDateString(d) {
-  return d.toISOString().substring(0,10);
+  return d.toISOString().substring(0, 10);
 }
+
 // *************** D O M - Related ****************************************
 /**
  * Create a Push Button
  * @param {string} txt [optional]
  * @return {object}
  */
-function createPushButton( txt) {
+function createPushButton(txt) {
   var pB = document.createElement("button");
   pB.type = "button";
   if (txt) pB.textContent = txt;
@@ -30,7 +40,7 @@ function createPushButton( txt) {
  *
  * @return {object}
  */
-function createOption( val, txt, classValues) {
+function createOption(val, txt, classValues) {
   var el = document.createElement("option");
   el.value = val;
   el.text = txt;
@@ -56,15 +66,15 @@ function createTimeElem(d) {
  * @param {string} displayProp  The object property to be displayed in the list
  * @return {object}
  */
-function createListFromMap( entityTbl, displayProp) {
+function createListFromMap(entityTbl, displayProp) {
   const listEl = document.createElement("ul");
   // delete old contents
   listEl.innerHTML = "";
   // create list items from object property values
-  for (const key of Object.keys( entityTbl)) {
+  for (const key of Object.keys(entityTbl)) {
     const listItemEl = document.createElement("li");
     listItemEl.textContent = entityTbl[key][displayProp];
-    listEl.appendChild( listItemEl);
+    listEl.appendChild(listItemEl);
   }
   return listEl;
 }
@@ -78,26 +88,26 @@ function createListFromMap( entityTbl, displayProp) {
  * @param {object} optPar [optional]  A record of optional parameter slots
  *                 including optPar.displayProp and optPar.selection
  */
-function fillSelectWithOptions( selectEl, selectionRange, keyProp, optPar) {
+function fillSelectWithOptions(selectEl, selectionRange, keyProp, optPar) {
   var optionEl = null, obj = null, displayProp = "";
   // delete old contents
   selectEl.innerHTML = "";
   // create "no selection yet" entry
-  if (!selectEl.multiple) selectEl.add( createOption(""," --- "));
+  if (!selectEl.multiple) selectEl.add(createOption("", " --- "));
   // create option elements from object property values
-  var options = Object.keys( selectionRange);
-  for (let i=0; i < options.length; i++) {
+  var options = Object.keys(selectionRange);
+  for (let i = 0; i < options.length; i++) {
     obj = selectionRange[options[i]];
     if (optPar && optPar.displayProp) displayProp = optPar.displayProp;
     else displayProp = keyProp;
-    optionEl = createOption( obj[keyProp], obj[displayProp]);
+    optionEl = createOption(obj[keyProp], obj[displayProp]);
     // if invoked with a selection argument, flag the selected options
     if (selectEl.multiple && optPar && optPar.selection &&
-        optPar.selection[keyProp]) {
+      optPar.selection[keyProp]) {
       // flag the option element with this value as selected
       optionEl.selected = true;
     }
-    selectEl.add( optionEl);
+    selectEl.add(optionEl);
   }
 }
 // *************** Multi-Selection Widget ****************************************
@@ -116,21 +126,21 @@ function fillSelectWithOptions( selectEl, selectionRange, keyProp, optPar) {
  * @param {string} displayProp? Defines the property to be shown in the selection list
  * @param {string} minCard? The minimum cardinality of the list of selected objects
  */
-function createMultiSelectionWidget( widgetContainerEl, selection, selectionRange,
-                                    keyProp, displayProp, minCard) {
+function createMultiSelectionWidget(widgetContainerEl, selection, selectionRange,
+  keyProp, displayProp, minCard) {
   const selectedItemsListEl = document.createElement("ul"),  // shows the selected objects
-        selectEl = document.createElement("select");
-  var el=null;
+    selectEl = document.createElement("select");
+  var el = null;
   if (!minCard) minCard = 0;  // default
   widgetContainerEl.innerHTML = "";  // delete old contents
   if (!displayProp) displayProp = keyProp;
-  fillSelectedItemsList( selectedItemsListEl, selection, keyProp, displayProp);
+  fillSelectedItemsList(selectedItemsListEl, selection, keyProp, displayProp);
   // event handler for removing an item from the selection
-  selectedItemsListEl.addEventListener( 'click', function (e) {
+  selectedItemsListEl.addEventListener('click', function (e) {
     if (e.target.tagName === "BUTTON") {  // delete/undo button
       const btnEl = e.target,
-            listItemEl = btnEl.parentNode,
-            listEl = listItemEl.parentNode;
+        listItemEl = btnEl.parentNode,
+        listEl = listItemEl.parentNode;
       if (listEl.children.length <= minCard) {
         alert("A movie must have at least one person!");
         return;
@@ -142,10 +152,10 @@ function createMultiSelectionWidget( widgetContainerEl, selection, selectionRang
         btnEl.textContent = "✕";
       } else if (listItemEl.classList.contains("added")) {
         // removing a previously added item means moving it back to the selection range
-        listItemEl.parentNode.removeChild( listItemEl);
-        const optionEl = createOption( listItemEl.getAttribute("data-value"),
-                           listItemEl.firstElementChild.textContent);
-        selectEl.add( optionEl);
+        listItemEl.parentNode.removeChild(listItemEl);
+        const optionEl = createOption(listItemEl.getAttribute("data-value"),
+          listItemEl.firstElementChild.textContent);
+        selectEl.add(optionEl);
       } else {
         // removing an ordinary item
         listItemEl.classList.add("removed");
@@ -154,25 +164,25 @@ function createMultiSelectionWidget( widgetContainerEl, selection, selectionRang
       }
     }
   });
-  widgetContainerEl.appendChild( selectedItemsListEl);
+  widgetContainerEl.appendChild(selectedItemsListEl);
   el = document.createElement("div");
-  el.appendChild( selectEl);
-  el.appendChild( createPushButton("add"));
+  el.appendChild(selectEl);
+  el.appendChild(createPushButton("add"));
   // event handler for moving an item from the selection range list to the selected items list
-  selectEl.parentNode.addEventListener( 'click', function (e) {
+  selectEl.parentNode.addEventListener('click', function (e) {
     if (e.target.tagName === "BUTTON") {  // the add button was clicked
       if (selectEl.value) {
-        addItemToListOfSelectedItems( selectedItemsListEl, selectEl.value,
-            selectEl.options[selectEl.selectedIndex].textContent, "added");
-        selectEl.remove( selectEl.selectedIndex);
+        addItemToListOfSelectedItems(selectedItemsListEl, selectEl.value,
+          selectEl.options[selectEl.selectedIndex].textContent, "added");
+        selectEl.remove(selectEl.selectedIndex);
         selectEl.selectedIndex = 0;
       }
     }
   });
-  widgetContainerEl.appendChild( el);
+  widgetContainerEl.appendChild(el);
   // create select options from selectionRange minus selection
-  fillMultiSelectionListWithOptions( selectEl, selectionRange, keyProp,
-      {"displayProp": displayProp, "selection": selection});
+  fillMultiSelectionListWithOptions(selectEl, selectionRange, keyProp,
+    { "displayProp": displayProp, "selection": selection });
 }
 /**
  * Fill the select element of an Multiple Choice Widget with option elements created
@@ -184,14 +194,14 @@ function createMultiSelectionWidget( widgetContainerEl, selection, selectionRang
  * @param {object} optPar [optional]  An record of optional parameter slots
  *                 including optPar.displayProp and optPar.selection
  */
-function fillMultiSelectionListWithOptions( selectEl, selectionRange, keyProp, optPar) {
+function fillMultiSelectionListWithOptions(selectEl, selectionRange, keyProp, optPar) {
   var options = [], obj = null, displayProp = "";
   // delete old contents
   selectEl.innerHTML = "";
   // create "no selection yet" entry
-  selectEl.add( createOption(""," --- "));
+  selectEl.add(createOption("", " --- "));
   // create option elements from object property values
-  options = Object.keys( selectionRange);
+  options = Object.keys(selectionRange);
   for (const i of options.keys()) {
     // if invoked with a selection argument, only add options for objects
     // that are not yet selected
@@ -199,7 +209,7 @@ function fillMultiSelectionListWithOptions( selectEl, selectionRange, keyProp, o
       obj = selectionRange[options[i]];
       if (optPar && optPar.displayProp) displayProp = optPar.displayProp;
       else displayProp = keyProp;
-      selectEl.add( createOption( obj[keyProp], obj[displayProp]));
+      selectEl.add(createOption(obj[keyProp], obj[displayProp]));
     }
   }
 }
@@ -211,12 +221,12 @@ function fillMultiSelectionListWithOptions( selectEl, selectionRange, keyProp, o
  * @param {string} keyProp  The standard ID property of the entity table
  * @param {string} displayProp  A text property of the entity table
  */
-function fillSelectedItemsList( listEl, selection, keyProp, displayProp) {
+function fillSelectedItemsList(listEl, selection, keyProp, displayProp) {
   // delete old contents
   listEl.innerHTML = "";
-  for (const objId of Object.keys( selection)) {
+  for (const objId of Object.keys(selection)) {
     const obj = selection[objId];
-    addItemToListOfSelectedItems( listEl, obj[keyProp], obj[displayProp]);
+    addItemToListOfSelectedItems(listEl, obj[keyProp], obj[displayProp]);
   }
 }
 /**
@@ -227,17 +237,17 @@ function fillSelectedItemsList( listEl, selection, keyProp, displayProp) {
  * @param {string} humanReadableId  A human-readable ID of the object
  * @param {string} classValue?  A class value to be assigned to the list item
  */
-function addItemToListOfSelectedItems( listEl, stdId, humanReadableId, classValue) {
-  var el=null;
+function addItemToListOfSelectedItems(listEl, stdId, humanReadableId, classValue) {
+  var el = null;
   const listItemEl = document.createElement("li");
   listItemEl.setAttribute("data-value", stdId);
   el = document.createElement("span");
   el.textContent = humanReadableId;
-  listItemEl.appendChild( el);
+  listItemEl.appendChild(el);
   el = createPushButton("✕");
-  listItemEl.appendChild( el);
-  if (classValue) listItemEl.classList.add( classValue);
-  listEl.appendChild( listItemEl);
+  listItemEl.appendChild(el);
+  if (classValue) listItemEl.classList.add(classValue);
+  listEl.appendChild(listItemEl);
 }
 
 /**
@@ -246,21 +256,21 @@ function addItemToListOfSelectedItems( listEl, stdId, humanReadableId, classValu
  * @param {object} obj
  */
 function cloneObject(obj) {
-  const clone = Object.create( Object.getPrototypeOf(obj));
+  const clone = Object.create(Object.getPrototypeOf(obj));
   for (const p in obj) {
     if (obj.hasOwnProperty(p)) {
       const val = obj[p];
       if (typeof val === "number" ||
-          typeof val === "string" ||
-          typeof val === "boolean" ||
-          val instanceof Date ||
-          // typed object reference
-          typeof val === "object" && !!val.constructor ||
-          // list of data values
-          Array.isArray(val) && !val.some( el => typeof el === "object") ||
-          // list of typed object references
-          Array.isArray(val) &&
-          val.every( el => typeof el === "object" && !!el.constructor)
+        typeof val === "string" ||
+        typeof val === "boolean" ||
+        val instanceof Date ||
+        // typed object reference
+        typeof val === "object" && !!val.constructor ||
+        // list of data values
+        Array.isArray(val) && !val.some(el => typeof el === "object") ||
+        // list of typed object references
+        Array.isArray(val) &&
+        val.every(el => typeof el === "object" && !!el.constructor)
       ) {
         if (Array.isArray(val)) clone[p] = val.slice(0);
         else clone[p] = val;
@@ -271,5 +281,4 @@ function cloneObject(obj) {
   return clone;
 }
 
-export { fillSelectWithOptions, createListFromMap, createMultiSelectionWidget,
-  cloneObject };
+export { isNonEmptyString, fillSelectWithOptions, createListFromMap, createMultiSelectionWidget, cloneObject };

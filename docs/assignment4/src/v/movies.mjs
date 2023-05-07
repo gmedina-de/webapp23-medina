@@ -9,13 +9,12 @@ import Person from "../m/Person.mjs";
 import Publisher from "../m/Publisher.mjs";
 import Movie from "../m/Movie.mjs";
 import { fillSelectWithOptions, createListFromMap, createMultiSelectionWidget }
-    from "../../lib/util.mjs";
+  from "../../lib/util.mjs";
 
 /***************************************************************
  Load data
  ***************************************************************/
 Person.retrieveAll();
-Publisher.retrieveAll();
 Movie.retrieveAll();
 
 /***************************************************************
@@ -39,38 +38,38 @@ window.addEventListener("beforeunload", Movie.saveAll);
  Use case Retrieve/List All Movies
  **********************************************/
 document.getElementById("RetrieveAndListAll")
-    .addEventListener("click", function () {
-  document.getElementById("Movie-M").style.display = "none";
-  document.getElementById("Movie-R").style.display = "block";
-  const tableBodyEl = document.querySelector("section#Movie-R>table>tbody");
-  tableBodyEl.innerHTML = "";  // drop old content
-  for (const key of Object.keys( Movie.instances)) {
-    const movie = Movie.instances[key];
-    // create list of people for this movie
-    const authListEl = createListFromMap( movie.people, "name");
-    const row = tableBodyEl.insertRow();
-    row.insertCell().textContent = movie.isbn;
-    row.insertCell().textContent = movie.title;
-    row.insertCell().textContent = movie.year;
-    row.insertCell().appendChild( authListEl);
-    // if the movie has a publisher, show its name
-    row.insertCell().textContent =
+  .addEventListener("click", function () {
+    document.getElementById("Movie-M").style.display = "none";
+    document.getElementById("Movie-R").style.display = "block";
+    const tableBodyEl = document.querySelector("section#Movie-R>table>tbody");
+    tableBodyEl.innerHTML = "";  // drop old content
+    for (const key of Object.keys(Movie.instances)) {
+      const movie = Movie.instances[key];
+      // create list of people for this movie
+      const authListEl = createListFromMap(movie.people, "name");
+      const row = tableBodyEl.insertRow();
+      row.insertCell().textContent = movie.isbn;
+      row.insertCell().textContent = movie.title;
+      row.insertCell().textContent = movie.year;
+      row.insertCell().appendChild(authListEl);
+      // if the movie has a publisher, show its name
+      row.insertCell().textContent =
         movie.publisher ? movie.publisher.name : "";
-  }
-});
+    }
+  });
 
 /**********************************************
   Use case Create Movie
  **********************************************/
 const createFormEl = document.querySelector("section#Movie-C > form"),
-      selectPeopleEl = createFormEl["selectPeople"],
-      selectPublisherEl = createFormEl["selectPublisher"];
+  selectPeopleEl = createFormEl["selectPeople"],
+  selectPublisherEl = createFormEl["selectPublisher"];
 document.getElementById("Create").addEventListener("click", function () {
   // set up a single selection list for selecting a publisher
-  fillSelectWithOptions( selectPublisherEl, Publisher.instances, "name");
+  fillSelectWithOptions(selectPublisherEl, Publisher.instances, "name");
   // set up a multiple selection list for selecting people
-  fillSelectWithOptions( selectPeopleEl, Person.instances,
-      "personId", {displayProp: "name"});
+  fillSelectWithOptions(selectPeopleEl, Person.instances,
+    "personId", { displayProp: "name" });
   document.getElementById("Movie-M").style.display = "none";
   document.getElementById("Movie-C").style.display = "block";
   createFormEl.reset();
@@ -78,7 +77,7 @@ document.getElementById("Create").addEventListener("click", function () {
 // set up event handlers for responsive constraint validation
 createFormEl.isbn.addEventListener("input", function () {
   createFormEl.isbn.setCustomValidity(
-      Movie.checkIsbnAsId( createFormEl["isbn"].value).message);
+    Movie.checkIsbnAsId(createFormEl["isbn"].value).message);
 });
 /* SIMPLIFIED/MISSING CODE: add event listeners for responsive
    validation on user input with Movie.checkTitle and checkYear */
@@ -94,21 +93,21 @@ createFormEl["commit"].addEventListener("click", function () {
   };
   // check all input fields and show error messages
   createFormEl.isbn.setCustomValidity(
-      Movie.checkIsbnAsId( slots.isbn).message);
+    Movie.checkIsbnAsId(slots.isbn).message);
   /* SIMPLIFIED CODE: no before-submit validation of name */
   // get the list of selected people
   const selAuthOptions = createFormEl.selectPeople.selectedOptions;
   // check the mandatory value constraint for people
   createFormEl.selectPeople.setCustomValidity(
-      selAuthOptions.length > 0 ? "" : "No person selected!"
+    selAuthOptions.length > 0 ? "" : "No person selected!"
   );
   // save the input data only if all form fields are valid
   if (createFormEl.checkValidity()) {
     // construct a list of person ID references
     for (const opt of selAuthOptions) {
-      slots.personIdRefs.push( opt.value);
+      slots.personIdRefs.push(opt.value);
     }
-    Movie.add( slots);
+    Movie.add(slots);
   }
 });
 
@@ -116,13 +115,13 @@ createFormEl["commit"].addEventListener("click", function () {
  * Use case Update Movie
 **********************************************/
 const updateFormEl = document.querySelector("section#Movie-U > form"),
-      updSelMovieEl = updateFormEl["selectMovie"];
+  updSelMovieEl = updateFormEl["selectMovie"];
 document.getElementById("Update").addEventListener("click", function () {
   // reset selection list (drop its previous contents)
   updSelMovieEl.innerHTML = "";
   // populate the selection list
-  fillSelectWithOptions( updSelMovieEl, Movie.instances,
-      "isbn", {displayProp: "title"});
+  fillSelectWithOptions(updSelMovieEl, Movie.instances,
+    "isbn", { displayProp: "title" });
   document.getElementById("Movie-M").style.display = "none";
   document.getElementById("Movie-U").style.display = "block";
   updateFormEl.reset();
@@ -142,10 +141,10 @@ updSelMovieEl.addEventListener("change", function () {
     updateFormEl["title"].value = movie.title;
     updateFormEl["year"].value = movie.year;
     // set up the associated publisher selection list
-    fillSelectWithOptions( selectPublisherEl, Publisher.instances, "name");
+    fillSelectWithOptions(selectPublisherEl, Publisher.instances, "name");
     // set up the associated people selection widget
-    createMultiSelectionWidget( selectPeopleWidget, movie.people,
-        Person.instances, "personId", "name", 1);  // minCard=1
+    createMultiSelectionWidget(selectPeopleWidget, movie.people,
+      Person.instances, "personId", "name", 1);  // minCard=1
     // assign associated publisher as the selected option to select element
     if (movie.publisher) updateFormEl["selectPublisher"].value = movie.publisher.name;
     saveButton.disabled = false;
@@ -173,13 +172,13 @@ updateFormEl["commit"].addEventListener("click", function () {
   // commit the update only if all form field values are valid
   if (updateFormEl.checkValidity()) {
     // construct personIdRefs-ToAdd/ToRemove lists
-    const personIdRefsToAdd=[], personIdRefsToRemove=[];
+    const personIdRefsToAdd = [], personIdRefsToRemove = [];
     for (const personItemEl of selectedPeopleListEl.children) {
       if (personItemEl.classList.contains("removed")) {
-        personIdRefsToRemove.push( personItemEl.getAttribute("data-value"));
+        personIdRefsToRemove.push(personItemEl.getAttribute("data-value"));
       }
       if (personItemEl.classList.contains("added")) {
-        personIdRefsToAdd.push( personItemEl.getAttribute("data-value"));
+        personIdRefsToAdd.push(personItemEl.getAttribute("data-value"));
       }
     }
     // if the add/remove list is non-empty, create a corresponding slot
@@ -189,7 +188,7 @@ updateFormEl["commit"].addEventListener("click", function () {
     if (personIdRefsToAdd.length > 0) {
       slots.personIdRefsToAdd = personIdRefsToAdd;
     }
-    Movie.update( slots);
+    Movie.update(slots);
     // update the movie selection list's option element
     updSelMovieEl.options[updSelMovieEl.selectedIndex].text = slots.title;
     // drop widget content
@@ -206,8 +205,8 @@ document.getElementById("Delete").addEventListener("click", function () {
   // reset selection list (drop its previous contents)
   delSelMovieEl.innerHTML = "";
   // populate the selection list
-  fillSelectWithOptions( delSelMovieEl, Movie.instances,
-      "isbn", {displayProp: "title"});
+  fillSelectWithOptions(delSelMovieEl, Movie.instances,
+    "isbn", { displayProp: "title" });
   document.getElementById("Movie-M").style.display = "none";
   document.getElementById("Movie-D").style.display = "block";
   deleteFormEl.reset();
@@ -217,9 +216,9 @@ deleteFormEl["commit"].addEventListener("click", function () {
   const movieIdRef = delSelMovieEl.value;
   if (!movieIdRef) return;
   if (confirm("Do you really want to delete this movie?")) {
-    Movie.destroy( movieIdRef);
+    Movie.destroy(movieIdRef);
     // remove deleted movie from select options
-    delSelMovieEl.remove( delSelMovieEl.selectedIndex);
+    delSelMovieEl.remove(delSelMovieEl.selectedIndex);
   }
 });
 

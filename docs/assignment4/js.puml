@@ -7,8 +7,8 @@ object Movie {
   <<get/set>> director[1] : Person
   <<get/set>> actors[*] : Person
   --
-  {static} checkMovieId(in m : number(int)) : ConstraintViolation
-  {static} checkMovieIdAsId(in m : number(int)) : ConstraintViolation
+  {static} checkMovieId(in id : number(int)) : ConstraintViolation
+  {static} checkMovieIdAsId(in id : number(int)) : ConstraintViolation
   {static} checkTitle(in title : string) : ConstraintViolation
   {static} checkReleaseDate(in date : Date) : ConstraintViolation
   {static} checkDirector(in d : Director) : ConstraintViolation
@@ -21,9 +21,9 @@ object Person {
   <<get/set>> personId[1] : number(int) {id}
   <<get/set>> name[1] : string
   --
-  {static} checkPersonId(in p : number(int)) : ConstraintViolation
-  {static} checkPersonIdAsId(in p : number(int)) : ConstraintViolation
-  {static} checkPersonIdAsIdRef(in p : number(int)) : ConstraintViolation
+  {static} checkPersonId(in id : number(int)) : ConstraintViolation
+  {static} checkPersonIdAsId(in id : number(int)) : ConstraintViolation
+  {static} checkPersonIdAsIdRef(in id : number(int)) : ConstraintViolation
   {static} checkName(in n : string) : ConstraintViolation
 }
 

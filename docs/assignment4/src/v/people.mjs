@@ -6,7 +6,6 @@
  Import classes, datatypes and utility procedures
  ***************************************************************/
 import Person from "../m/Person.mjs";
-import Publisher from "../m/Publisher.mjs";
 import Movie from "../m/Movie.mjs";
 import { fillSelectWithOptions } from "../../lib/util.mjs";
 
@@ -14,7 +13,6 @@ import { fillSelectWithOptions } from "../../lib/util.mjs";
  Load data
  ***************************************************************/
 Person.retrieveAll();
-Publisher.retrieveAll();
 Movie.retrieveAll();
 
 /***************************************************************
@@ -22,7 +20,7 @@ Movie.retrieveAll();
  ***************************************************************/
 // set up back-to-menu buttons for all use cases
 for (const btn of document.querySelectorAll("button.back-to-menu")) {
-  btn.addEventListener('click', function () {refreshManageDataUI();});
+  btn.addEventListener('click', function () { refreshManageDataUI(); });
 }
 // neutralize the submit event for all use cases
 for (const frm of document.querySelectorAll("section > form")) {
@@ -42,18 +40,18 @@ window.addEventListener("beforeunload", function () {
  Use case Retrieve and List All People
  **********************************************/
 document.getElementById("RetrieveAndListAll")
-    .addEventListener("click", function () {
-  const tableBodyEl = document.querySelector("section#Person-R > table > tbody");
-  tableBodyEl.innerHTML = "";
-  for (const key of Object.keys( Person.instances)) {
-    const person = Person.instances[key];
-    const row = tableBodyEl.insertRow();
-    row.insertCell().textContent = person.personId;
-    row.insertCell().textContent = person.name;
-  }
-  document.getElementById("Person-M").style.display = "none";
-  document.getElementById("Person-R").style.display = "block";
-});
+  .addEventListener("click", function () {
+    const tableBodyEl = document.querySelector("section#Person-R > table > tbody");
+    tableBodyEl.innerHTML = "";
+    for (const key of Object.keys(Person.instances)) {
+      const person = Person.instances[key];
+      const row = tableBodyEl.insertRow();
+      row.insertCell().textContent = person.personId;
+      row.insertCell().textContent = person.name;
+    }
+    document.getElementById("Person-M").style.display = "none";
+    document.getElementById("Person-R").style.display = "block";
+  });
 
 /**********************************************
  Use case Create Person
@@ -67,9 +65,11 @@ document.getElementById("Create").addEventListener("click", function () {
 // set up event handlers for responsive constraint validation
 createFormEl.personId.addEventListener("input", function () {
   createFormEl.personId.setCustomValidity(
-      Person.checkPersonIdAsId( createFormEl.personId.value).message);
+    Person.checkPersonIdAsId(createFormEl.personId.value).message);
 });
-/* SIMPLIFIED CODE: no responsive validation of name */
+createFormEl.name.addEventListener("input", function () {
+  createFormEl.name.setCustomValidity(Person.checkName(createFormEl.name.value).message);
+});
 
 // handle Save button click events
 createFormEl["commit"].addEventListener("click", function () {
@@ -79,10 +79,11 @@ createFormEl["commit"].addEventListener("click", function () {
   };
   // check all input fields and show error messages
   createFormEl.personId.setCustomValidity(
-      Person.checkPersonIdAsId( slots.personId).message);
-  /* SIMPLIFIED CODE: no before-submit validation of name */
+    Person.checkPersonIdAsId(slots.personId).message);
+  createFormEl.name.setCustomValidity(
+    Person.checkName(createFormEl.name.value).message);
   // save the input data only if all form fields are valid
-  if (createFormEl.checkValidity()) Person.add( slots);
+  if (createFormEl.checkValidity()) Person.add(slots);
 });
 
 /**********************************************
@@ -95,13 +96,13 @@ document.getElementById("Update").addEventListener("click", function () {
   // reset selection list (drop its previous contents)
   updSelPersonEl.innerHTML = "";
   // populate the selection list
-  fillSelectWithOptions( updSelPersonEl, Person.instances,
-      "personId", {displayProp:"name"});
+  fillSelectWithOptions(updSelPersonEl, Person.instances,
+    "personId", { displayProp: "name" });
   document.getElementById("Person-M").style.display = "none";
   document.getElementById("Person-U").style.display = "block";
   updateFormEl.reset();
 });
-updSelPersonEl.addEventListener("change", handlePeopleelectChangeEvent);
+updSelPersonEl.addEventListener("change", handlePeopleSelectChangeEvent);
 
 // handle Save button click events
 updateFormEl["commit"].addEventListener("click", function () {
@@ -112,10 +113,11 @@ updateFormEl["commit"].addEventListener("click", function () {
     name: updateFormEl.name.value
   }
   // check all property constraints
-  /* SIMPLIFIED CODE: no before-save validation of name */
+  updateFormEl.name.setCustomValidity(
+    Person.checkName(updateFormEl.name.value).message);
   // save the input data only if all of the form fields are valid
-  if (updSelPersonEl.checkValidity()) {
-    Person.update( slots);
+  if (updateFormEl.checkValidity() && updSelPersonEl.checkValidity()) {
+    Person.update(slots);
     // update the person selection list's option element
     updSelPersonEl.options[updSelPersonEl.selectedIndex].text = slots.name;
   }
@@ -124,7 +126,7 @@ updateFormEl["commit"].addEventListener("click", function () {
  * handle person selection events
  * when a person is selected, populate the form with the data of the selected person
  */
-function handlePeopleelectChangeEvent () {
+function handlePeopleSelectChangeEvent() {
   const key = updateFormEl.selectPerson.value;
   if (key) {
     const auth = Person.instances[key];
@@ -146,8 +148,8 @@ document.getElementById("Delete").addEventListener("click", function () {
   // reset selection list (drop its previous contents)
   delSelPersonEl.innerHTML = "";
   // populate the selection list
-  fillSelectWithOptions( delSelPersonEl, Person.instances,
-      "personId", {displayProp:"name"});
+  fillSelectWithOptions(delSelPersonEl, Person.instances,
+    "personId", { displayProp: "name" });
   deleteFormEl.reset();
 });
 // handle Delete button click events
@@ -155,8 +157,8 @@ deleteFormEl["commit"].addEventListener("click", function () {
   const personIdRef = delSelPersonEl.value;
   if (!personIdRef) return;
   if (confirm("Do you really want to delete this person?")) {
-    Person.destroy( personIdRef);
-    delSelPersonEl.remove( delSelPersonEl.selectedIndex);
+    Person.destroy(personIdRef);
+    delSelPersonEl.remove(delSelPersonEl.selectedIndex);
   }
 });
 
