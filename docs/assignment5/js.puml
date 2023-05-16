@@ -1,0 +1,33 @@
+@startuml js
+
+object Movie {
+  <<get/set>> movieId[1]: number(int) {id}
+  <<get/set>> title[1] : string
+  <<get/set>> releaseDate[1] : Date
+  <<get/set>> director[1] : Person
+  <<get/set>> actors[*] : Person
+  --
+  {static} checkMovieId(in id : number(int)) : ConstraintViolation
+  {static} checkMovieIdAsId(in id : number(int)) : ConstraintViolation
+  {static} checkMovieIdAsIdRef(in id : number(int)) : ConstraintViolation
+  {static} checkTitle(in title : string) : ConstraintViolation
+  {static} checkReleaseDate(in date : Date) : ConstraintViolation
+  {static} checkDirector(in d : Director) : ConstraintViolation
+  {static} checkActor(in a : Actor) : ConstraintViolation
+  addActor(in a : Actor)
+  removeActor(in a : Actor)
+}
+
+object Person {
+  <<get/set>> personId[1] : number(int) {id}
+  <<get/set>> name[1] : string
+  <<get>> directedMovies[*] : Movie {inverse of director}
+  <<get>> playedMovies[*] : Movie {inverse of actors}
+  --
+  {static} checkPersonId(in id : number(int)) : ConstraintViolation
+  {static} checkPersonIdAsId(in id : number(int)) : ConstraintViolation
+  {static} checkPersonIdAsIdRef(in id : number(int)) : ConstraintViolation
+  {static} checkName(in n : string) : ConstraintViolation
+}
+
+@enduml

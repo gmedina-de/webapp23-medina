@@ -1,0 +1,18 @@
+@startuml oo
+
+object Movie {
+  movieId[1] : PositiveInteger {id}
+  title[1] : NonEmptyString
+  releaseDate[1] : Date
+  director[1] : Person
+  actors[*] : Person
+}
+
+object Person {
+  personId[1] : PositiveInteger {id}
+  name[1] : NonEmptyString
+  /directedMovies[*] : Movie {inverse of director}
+  /playedMovies[*] : Movie {inverse of actors}
+}
+
+@enduml
