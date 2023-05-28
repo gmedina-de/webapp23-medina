@@ -1,0 +1,40 @@
+@startuml et
+hide empty methods
+
+object Movie <<JS entity table>> {
+  movieId: number {pkey}
+  title : string
+  releaseDate : string
+  category : number
+  tvSeriesName : string
+  episodeNo : number
+  aboutId : number {fkey}
+  directorId : number {fkey}
+  actorIdRefs : number[] {fkey}
+}
+
+object Person <<JS entity table>> {
+  personId : number {pkey}
+  name : string
+}
+
+object Director {
+  personId : number {pkey}
+  name : string
+}
+
+object Actor <<JS entity table>> {
+  personId : number {pkey}
+  name : string
+  agentId : number {fkey}
+}
+
+Actor "agentId" .. "<<fkey>>" Person
+Movie "aboutId" .. "<<fkey>>" Person
+Movie "directorId" .. "<<fkey>>" Director
+Movie "actorIdRefs" .. "<<fkey>>" Actor
+Actor -up[hidden]-|> Person
+Director -up[hidden]-|> Person
+Movie -left[hidden]- Person
+
+@enduml

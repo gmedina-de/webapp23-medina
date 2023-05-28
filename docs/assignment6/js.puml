@@ -1,0 +1,60 @@
+@startuml js
+hide empty methods
+
+object Movie {
+  <<get/set>> movieId[1]: number(int) {id}
+  <<get/set>> title[1] : string
+  <<get/set>> releaseDate[1] : Date
+  <<get/set>> category[0..1] : number {from MovieCategoryEL, frozen}
+  <<get/set>> tvSeriesName[0..1] : string
+  <<get/set>> episodeNo[0..1] : number(int)
+  <<get/set>> about[0..1] : Person
+  <<get/set>> director[1] : Director
+  <<get/set>> actors[*] : Actor
+  --
+  {static} checkMovieId(in id : number(int)) : ConstraintViolation
+  {static} checkMovieIdAsId(in id : number(int)) : ConstraintViolation
+  {static} checkTitle(in t : string) : ConstraintViolation
+  {static} checkReleaseDate(in d : Date) : ConstraintViolation
+  {static} checkCategory(in c : number) : ConstraintViolation
+  {static} checkTvSeriesName(in n : string) : ConstraintViolation
+  {static} checkEpisodeNo(in e : number(int)) : ConstraintViolation
+  {static} checkAbout(in p : Person) : ConstraintViolation
+  {static} checkDirector(in d : Director) : ConstraintViolation
+  {static} checkActor(in a : Actor) : ConstraintViolation
+  addActor(in a : Actor)
+  removeActor(in a : Actor)
+}
+
+object MovieCategoryEL <<enumeration>> {
+  TV_SERIES_EPISODE
+  BIOGRAPHY
+}
+
+object Person {
+  <<get/set>> personId[1] : number(int) {id}
+  <<get/set>> name[1] : string
+  --
+  {static} checkPersonId(in id : number(int)) : ConstraintViolation
+  {static} checkPersonIdAsId(in id : number(int), in type) : ConstraintViolation
+  {static} checkPersonIdAsIdRef(in id : number(int)) : ConstraintViolation
+  {static} checkName(in n : string) : ConstraintViolation
+}
+
+object Director {
+  ' <<get>> directedMovies[*] : Movie {inverse of director}
+}
+
+object Actor {
+  ' <<get>> playedMovies[*] : Movie {inverse of actors}
+  <<get/set>> agent[1] : Person
+  --
+  {static} checkAgent(in p : Person) : ConstraintViolation
+}
+
+MovieCategoryEL -up[hidden]- Movie
+Person -left[hidden]- Movie
+Director -up-|> Person
+Actor -up-|> Person
+
+@enduml

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Plain JS Subtyping App</title>
+  <meta name="description" content="A plain JS app with subtyping and inheritance in class hierarchies." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="icon" href="favicon.svg" />
+  <link rel="mask-icon" href="mask-icon.svg" color="#000000" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/normalize.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <script type="module">
+    import { clearData, generateTestData } from "./src/c/app.mjs";
+    const clearButton = document.getElementById("clearData"),
+      generateTestDataButtons = document.querySelectorAll("button.generateTestData");
+    // Set event handlers for the buttons "clearData" and "generateTestData"
+    clearButton.addEventListener("click", clearData);
+    for (const btn of generateTestDataButtons) {
+      btn.addEventListener("click", generateTestData);
+    }
+  </script>
+</head>
+
+<body>
+  <header>
+    <div class="wrapper clearfix">
+      <div class="title">
+        <figure><a href="https://web-engineering.info">
+            <img alt="" title="Icon made by Lorc under CC BY 3.0. Available on https://game-icons.net"
+              src="favicon.svg" /></a></figure>
+        <h1>MovieDB</h1>
+        <h2>Plain JS Subtyping App</h2>
+        <h3>An example of a front-end web app with subtyping/inheritance in class hierarchies, built with plain
+          JavaScript</h3>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="movies.html">Movies</a></li>
+          <li><a href="directors.html">Directors</a></li>
+          <li><a href="actors.html">Actors</a></li>
+          <li><a href="people.html">People</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrapper clearfix">
+      <p>This app supports the following operations:</p>
+      <div class="two-col-menu">
+        <ul class="menu">
+          <li><a href="movies.html">Manage movie data</a></li>
+          <li><a href="directors.html">Manage director data</a></li>
+          <li><a href="actors.html">Manage actor data</a></li>
+          <li><a href="people.html">Manage person data</a></li>
+        </ul>
+        <ul class="menu">
+          <li>
+            <button type="button" class="generateTestData">Generate test data</button>
+          </li>
+          <li>
+            <button type="button" id="clearData">Clear database</button>
+          </li>
+        </ul>
+      </div>
+      <p>For playing with the app, you may first want to
+        <button type="button" class="generateTestData">Generate test data</button>
+        and then view it (e.g. by choosing "Manage movies" and then "List all movies").
+      </p>
+      <p>This example app takes care of two class hierarchies:
+      <ul>
+        <li>The simple segmentation of <code>Movie</code> into <code>TvSeriesEpisode</code> and <code>Biography</code>.
+        </li>
+        <li>The segmentation of <code>Person</code> into <code>Director</code> and <code>Actor</code>.
+        </li>
+      </ul>
+    </div>
+  </main>
+  <footer>
+    <div class="foot-content wrapper">
+      This site is product of @medinger's work during summer semester 2023
+      as part of the module "Designing and Implementing Web Applications"
+      from the Chair of Internet Technology, Brandenburg University of Technology, Germany.
+    </div>
+  </footer>
+</body>
+
+</html>

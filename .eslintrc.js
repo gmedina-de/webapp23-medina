@@ -11,9 +11,14 @@ module.exports = {
     "sourceType": "module"
   },
   "rules": {
+    "max-len": [
+      "error",
+      80
+    ],
     "indent": [
       "error",
-      2
+      2,
+      {SwitchCase: 0}
     ],
     "linebreak-style": [
       "error",
@@ -26,6 +31,6 @@ module.exports = {
     "semi": [
       "error",
       "always"
-    ]
+    ],
   }
 };
